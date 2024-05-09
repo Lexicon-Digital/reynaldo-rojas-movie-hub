@@ -11,7 +11,7 @@ using MoviesAPI.DbContexts;
 namespace MoviesAPI.Migrations
 {
     [DbContext(typeof(MovieAPIContext))]
-    [Migration("20240424064437_InitialMigration")]
+    [Migration("20240509073243_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -41,27 +41,6 @@ namespace MoviesAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Cinema");
-                });
-
-            modelBuilder.Entity("MoviesAPI.Entities.City", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Cities");
                 });
 
             modelBuilder.Entity("MoviesAPI.Entities.Movie", b =>
@@ -149,29 +128,34 @@ namespace MoviesAPI.Migrations
                     b.ToTable("MovieCinema");
                 });
 
-            modelBuilder.Entity("MoviesAPI.Entities.PointOfInterest", b =>
+            modelBuilder.Entity("MoviesAPI.MovieReview", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("id");
 
-                    b.Property<int>("CityId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
+                    b.Property<string>("Comment")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasColumnName("comment");
+
+                    b.Property<DateTime>("ReviewDate")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("reviewDate");
+
+                    b.Property<decimal>("Score")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("score");
+
+                    b.Property<int>("movieId")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CityId");
+                    b.HasIndex("movieId");
 
-                    b.ToTable("PointsOfInterest");
+                    b.ToTable("MovieReview");
                 });
 
             modelBuilder.Entity("MoviesAPI.Entities.MovieCinema", b =>
@@ -189,25 +173,22 @@ namespace MoviesAPI.Migrations
                     b.Navigation("Movie");
                 });
 
-            modelBuilder.Entity("MoviesAPI.Entities.PointOfInterest", b =>
+            modelBuilder.Entity("MoviesAPI.MovieReview", b =>
                 {
-                    b.HasOne("MoviesAPI.Entities.City", "City")
-                        .WithMany("PointsOfInterest")
-                        .HasForeignKey("CityId")
+                    b.HasOne("MoviesAPI.Entities.Movie", "Movie")
+                        .WithMany("MovieReviews")
+                        .HasForeignKey("movieId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("City");
-                });
-
-            modelBuilder.Entity("MoviesAPI.Entities.City", b =>
-                {
-                    b.Navigation("PointsOfInterest");
+                    b.Navigation("Movie");
                 });
 
             modelBuilder.Entity("MoviesAPI.Entities.Movie", b =>
                 {
                     b.Navigation("MovieCinema");
+
+                    b.Navigation("MovieReviews");
                 });
 #pragma warning restore 612, 618
         }

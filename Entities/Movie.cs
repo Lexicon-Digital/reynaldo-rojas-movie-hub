@@ -50,6 +50,8 @@ public class Movie
 
   public ICollection<MovieCinema> MovieCinema { get; set; } = new List<MovieCinema>();
 
+  public ICollection<MovieReview> MovieReviews { get; set; } = new List<MovieReview>();
+
   public Movie(string title, string genre, string synopsis, string director, string rating, string princessTheatreMovieId)
   {
     Title = title;

@@ -12,93 +12,6 @@ public class MovieRepository : IMovieRepository
   public MovieRepository(MovieAPIContext context)
   {
     _context = context ?? throw new ArgumentNullException(nameof(context));
-
-  }
-
-  public async Task<(IEnumerable<City>, PaginationMetadata)> GetCitiesASync(string? name, string? searchQuery, int pageNumber, int pageSize)
-  {
-    var collection = _context.Cities as IQueryable<City>;
-
-    if (!string.IsNullOrWhiteSpace(name))
-    {
-      collection = collection.Where(c => c.Name == name);
-    }
-
-    if (!string.IsNullOrWhiteSpace(searchQuery))
-    {
-      collection = collection.Where(c => c.Name.Contains(searchQuery) || c.Description.Contains(searchQuery));
-    }
-
-    var totalItemCount = await collection.CountAsync();
-
-    var paginationMetadata = new PaginationMetadata(totalItemCount, pageSize, pageNumber);
-
-    var collectionToReturn = await collection
-      .OrderBy(c => c.Name)
-      .Skip(pageSize * (pageNumber - 1))
-      .Take(pageSize)
-      .ToListAsync();
-
-    return (collectionToReturn, paginationMetadata);
-  }
-
-
-  public async Task<IEnumerable<City>> GetCitiesASync()
-  {
-    return await _context.Cities.OrderBy(c => c.Name).ToListAsync();
-  }
-
-  public async Task<City?> GetCityAsync(int cityId, bool includePointsOfInterest)
-  {
-    if (includePointsOfInterest)
-    {
-      return await _context.Cities
-                    .Include(c => c.PointsOfInterest)
-                    .Where(c => c.Id == cityId)
-                    .FirstOrDefaultAsync();
-    }
-
-    return await _context.Cities.
-                  Where(c => c.Id == cityId)
-                  .FirstOrDefaultAsync();
-  }
-
-  public async Task<IEnumerable<PointOfInterest>> GetPointsOfInterestASync(int cityId)
-  {
-    return await _context.PointsOfInterest
-                  .Where(p => p.CityId == cityId)
-                  .ToListAsync();
-  }
-
-  public async Task<PointOfInterest?> GetPointOfInterestASync(int cityId, int pointOfInterestId)
-  {
-    return await _context.PointsOfInterest
-                  .Where(p => p.CityId == cityId && p.Id == pointOfInterestId)
-                  .FirstOrDefaultAsync();
-  }
-
-  public async Task<bool> CityExistsAsync(int cityId)
-  {
-    return await _context.Cities.AnyAsync(c => c.Id == cityId);
-  }
-
-  public async Task AddPointOfInterestToCity(int cityId, PointOfInterest pointOfInterest)
-  {
-    var city = await GetCityAsync(cityId, false);
-    if (city != null)
-    {
-      city.PointsOfInterest.Add(pointOfInterest);
-    }
-  }
-
-  public void DeletePointOfInterest(PointOfInterest pointOfInterest)
-  {
-    _context.PointsOfInterest.Remove(pointOfInterest);
-  }
-
-  public async Task<bool> SaveChangesAsync()
-  {
-    return await _context.SaveChangesAsync() >= 0;
   }
 
   public async Task<IEnumerable<Movie>> GetMoviesAsync()
@@ -113,5 +26,59 @@ public class MovieRepository : IMovieRepository
         .ThenInclude(mc => mc.Cinema)
         .Where(m => m.Id == movieId)
         .FirstOrDefaultAsync();
+  }
+
+  public async Task<Movie?> GetMovieById(int movieId)
+  {
+    return await _context.Movie
+        .Where(m => m.Id == movieId)
+        .FirstOrDefaultAsync();
+  }
+
+  public async Task<IEnumerable<MovieReview>> GetReviewsByMovieId(int movieId)
+  {
+    return await _context.MovieReview
+        .Where(mr => mr.Movie.Id == movieId)
+        .ToListAsync();
+  }
+
+  public async Task<bool> MovieExists(int movieId)
+  {
+    return await _context.Movie.AnyAsync(m => m.Id == movieId);
+  }
+
+  public async Task AddReviewToMovieId(int movieId, MovieReview movieReview)
+  {
+    var movie = await GetMovieById(movieId);
+    if (movie != null)
+    {
+      movie.MovieReviews.Add(movieReview);
+    }
+  }
+
+  public async Task<MovieReview?> GetMovieReviewById(int movieId, int movieReviewId)
+  {
+    return await _context.MovieReview
+      .Where(mr => mr.Movie.Id == movieId && mr.Id == movieReviewId)
+      .FirstOrDefaultAsync();
+  }
+
+  public async Task RemoveReviewFromMovieId(int movieId, int movieReviewId)
+  {
+    var movie = await GetMovieById(movieId);
+    var movieReview = await GetMovieReviewById(movieId, movieReviewId);
+    if (movie != null && movieReview != null)
+    {
+      movie.MovieReviews.Remove(movieReview);
+    }
+  }
+
+  public async Task<bool> MovieReviewExist(int movieReviewId)
+  {
+    return await _context.MovieReview.AnyAsync(mr => mr.Id == movieReviewId);
+  }
+  public async Task<bool> SaveChangesAsync()
+  {
+    return await _context.SaveChangesAsync() >= 0;
   }
 }

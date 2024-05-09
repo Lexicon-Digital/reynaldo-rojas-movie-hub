@@ -1,0 +1,1 @@
+This folder was only intented to verify the inserts worked appropriately. the DDL scripts are for absolutely no use. The database of this app is created using Entity Framework.

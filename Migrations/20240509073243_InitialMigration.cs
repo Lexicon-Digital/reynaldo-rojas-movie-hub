@@ -26,20 +26,6 @@ namespace MoviesAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Cities",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                    Description = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Cities", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Movie",
                 columns: table => new
                 {
@@ -57,27 +43,6 @@ namespace MoviesAPI.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Movie", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PointsOfInterest",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                    Description = table.Column<string>(type: "TEXT", maxLength: 200, nullable: true),
-                    CityId = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PointsOfInterest", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PointsOfInterest_Cities_CityId",
-                        column: x => x.CityId,
-                        principalTable: "Cities",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -106,6 +71,28 @@ namespace MoviesAPI.Migrations
                         principalColumn: "id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "MovieReview",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    movieId = table.Column<int>(type: "INTEGER", nullable: false),
+                    score = table.Column<decimal>(type: "TEXT", nullable: false),
+                    comment = table.Column<string>(type: "TEXT", nullable: false),
+                    reviewDate = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MovieReview", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_MovieReview_Movie_movieId",
+                        column: x => x.movieId,
+                        principalTable: "Movie",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_MovieCinema_cinemaId",
                 table: "MovieCinema",
@@ -117,9 +104,9 @@ namespace MoviesAPI.Migrations
                 column: "movieId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PointsOfInterest_CityId",
-                table: "PointsOfInterest",
-                column: "CityId");
+                name: "IX_MovieReview_movieId",
+                table: "MovieReview",
+                column: "movieId");
         }
 
         /// <inheritdoc />
@@ -129,16 +116,13 @@ namespace MoviesAPI.Migrations
                 name: "MovieCinema");
 
             migrationBuilder.DropTable(
-                name: "PointsOfInterest");
+                name: "MovieReview");
 
             migrationBuilder.DropTable(
                 name: "Cinema");
 
             migrationBuilder.DropTable(
                 name: "Movie");
-
-            migrationBuilder.DropTable(
-                name: "Cities");
         }
     }
 }

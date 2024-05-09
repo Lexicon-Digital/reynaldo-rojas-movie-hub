@@ -10,14 +10,12 @@ public class MovieAPIContext : DbContext
   {
   }
 
-  public DbSet<City> Cities { get; set; }
-
-  public DbSet<PointOfInterest> PointsOfInterest { get; set; }
-
   public DbSet<Movie> Movie { get; set; }
 
   public DbSet<Cinema> Cinema { get; set; }
 
   public DbSet<MovieCinema> MovieCinema { get; set; }
+
+  public DbSet<MovieReview> MovieReview { get; set; }
 
 }
