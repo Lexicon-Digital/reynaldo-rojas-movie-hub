@@ -25,6 +25,7 @@ builder.Services.AddDbContext<MovieAPIContext>(
 
 builder.Services.AddScoped<IMovieRepository, MovieRepository>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddScoped<PrincessTheatreService>();
 
 // Generating app
 var app = builder.Build();

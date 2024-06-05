@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using MoviesAPI.Entities;
 using MoviesAPI.Services;
 
 namespace MoviesAPI;
@@ -12,10 +11,13 @@ public class MoviesController : ControllerBase
   private IMovieRepository _movieRepository;
   private IMapper _mapper;
 
-  public MoviesController(IMovieRepository movieRepository, IMapper mapper)
+  private PrincessTheatreService _princessTheatreService;
+
+  public MoviesController(IMovieRepository movieRepository, IMapper mapper, PrincessTheatreService princessTheatreService)
   {
     _movieRepository = movieRepository;
     _mapper = mapper;
+    _princessTheatreService = princessTheatreService;
   }
 
   [HttpGet]
@@ -26,9 +28,21 @@ public class MoviesController : ControllerBase
   }
 
   [HttpGet("{movieId}")]
-  public async Task<ActionResult<MovieDto>> GetMovieById(int movieId)
+  public async Task<ActionResult> GetMovieById(int movieId)
   {
+    // Get movies
     var movieEntity = await _movieRepository.GetMovieWithCinemas(movieId);
-    return Ok(_mapper.Map<MovieDto>(movieEntity));
+    var mappedMovie = _mapper.Map<MovieDto>(movieEntity);
+
+    // Get princess theatre cinemas using reference id
+    List<CinemaDto> princessTheatreCinemas = await _princessTheatreService.GetCinemasByReferenceId(movieEntity?.PrincessTheatreMovieId.ToString());
+
+    // Add princess theatre cinemas to existing cinemas
+    foreach (CinemaDto princessTheatreCinema in princessTheatreCinemas)
+    {
+      mappedMovie.Cinemas.Add(princessTheatreCinema);
+    }
+
+    return Ok(mappedMovie);
   }
 }
