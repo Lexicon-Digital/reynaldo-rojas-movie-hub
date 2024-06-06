@@ -4,18 +4,16 @@ namespace MoviesAPI;
 
 public class PrincessTheatreService
 {
-  private HttpClient _client;
+  HttpService _httpService;
 
-  public PrincessTheatreService()
+  public PrincessTheatreService(HttpService httpService)
   {
-    _client = new HttpClient();
-    _client.BaseAddress = new Uri("https://challenge.lexicondigital.com.au/api/v2/");
-    _client.DefaultRequestHeaders.Add("x-api-key", "Yr2636E6BTD3UCdleMkf7UEdqKnd9n361TQL9An7");
+    _httpService = httpService;
   }
 
   public async Task<ProviderDto?> GetMoviesByProvider(string provider)
   {
-    HttpResponseMessage response = await _client.GetAsync($"{provider}/movies");
+    HttpResponseMessage response = await _httpService.GetRetryAsync($"{provider}/movies");
     return await ProcessResponse(response);
   }
 

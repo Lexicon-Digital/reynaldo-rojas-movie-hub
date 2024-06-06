@@ -8,41 +8,24 @@ namespace MoviesAPI;
 [Route("api/movies")]
 public class MoviesController : ControllerBase
 {
-  private IMovieRepository _movieRepository;
-  private IMapper _mapper;
+  private MovieService _movieService;
 
-  private PrincessTheatreService _princessTheatreService;
-
-  public MoviesController(IMovieRepository movieRepository, IMapper mapper, PrincessTheatreService princessTheatreService)
+  public MoviesController(MovieService movieService)
   {
-    _movieRepository = movieRepository;
-    _mapper = mapper;
-    _princessTheatreService = princessTheatreService;
+    _movieService = movieService;
   }
 
   [HttpGet]
   public async Task<ActionResult<IEnumerable<MovieDto>>> GetListOfMovies()
   {
-    var moviesEntities = await _movieRepository.GetMoviesAsync();
-    return Ok(_mapper.Map<IEnumerable<MovieWithoutCinemasDto>>(moviesEntities));
+    var movies = await _movieService.GetMovies();
+    return Ok(movies);
   }
 
   [HttpGet("{movieId}")]
   public async Task<ActionResult> GetMovieById(int movieId)
   {
-    // Get movies
-    var movieEntity = await _movieRepository.GetMovieWithCinemas(movieId);
-    var mappedMovie = _mapper.Map<MovieDto>(movieEntity);
-
-    // Get princess theatre cinemas using reference id
-    List<CinemaDto> princessTheatreCinemas = await _princessTheatreService.GetCinemasByReferenceId(movieEntity?.PrincessTheatreMovieId.ToString());
-
-    // Add princess theatre cinemas to existing cinemas
-    foreach (CinemaDto princessTheatreCinema in princessTheatreCinemas)
-    {
-      mappedMovie.Cinemas.Add(princessTheatreCinema);
-    }
-
-    return Ok(mappedMovie);
+    var movie = await _movieService.GetMovieById(movieId);
+    return Ok(movie);
   }
 }
